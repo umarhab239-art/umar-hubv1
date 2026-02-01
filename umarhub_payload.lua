@@ -1,3 +1,8 @@
 if not getgenv().UmarHub_Loader then return end
 
-game.Players.LocalPlayer:Kick("UMAR HUB PAYLOAD EXECUTED")
+-- SAFE VISIBLE PROOF (no kick)
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Umar Hub",
+    Text = "Payload executed successfully",
+    Duration = 5
+})
