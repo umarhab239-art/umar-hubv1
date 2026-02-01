@@ -1,15 +1,17 @@
-if not getgenv().UmarHub_Loader then return end
+
+   --// UMAR HUB | Rivals
+--// Clean public build (no HWID)
+
+if not getgenv().UmarHub_Loader then
+    return
+end
 
 repeat task.wait() until
     game:IsLoaded()
     and game.Players.LocalPlayer
-    and workspace:FindFirstChild("ViewModels")
+    and game.Players.LocalPlayer.Character
     and game.Players.LocalPlayer:FindFirstChild("PlayerScripts")
--- Umar Hub Payload Guard
-if not getgenv().UmarHub_Loader then
-    warn("Umar Hub: Unauthorized execution.")
-    return
-end
+    and workspace:FindFirstChild("ViewModels")
 
 --// UMAR HUB | Rivals
 --// Rebranded from 8bit
@@ -20,7 +22,8 @@ if not game:IsLoaded() then
 end
 
 local Fluent = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/perfectBlue0X/the-rivals/refs/heads/main/8bitfluent.lua"
+    "https://raw.githubusercontent.com/perfectBlue0X/the-rivals/main/8bitfluent.lua"
+
 ))()
 
 
@@ -2412,15 +2415,13 @@ for _, descendant in ipairs(CoreGui:GetDescendants()) do
             shake()
         end)
 
-        -- Trigger the shake every 4 seconds
-        while true do
-            shakeEvent:Fire() -- Fire the event to trigger the shake
-            wait(repeatDuration) -- Wait for 4 seconds before firing the event again
-        end
-
-        break
+-- Trigger the shake every 4 seconds (safe)
+task.spawn(function()
+    while descendant and descendant.Parent do
+        shake()
+        task.wait(repeatDuration)
     end
-end
+end)
 
 task.spawn(function()
     local CoreGui = game:GetService("CoreGui")
@@ -2432,8 +2433,54 @@ task.spawn(function()
             if v.Image == "rbxassetid://114688178113371"
             or v.Image:lower():find("8bit")
             or v.Image:lower():find("rivals") then
-                v:Destroy()
+                
             end
+        end
+    end
+end)
+task.spawn(function()
+    local CoreGui = game:GetService("CoreGui")
+    task.wait(1)
+
+    for _, v in ipairs(CoreGui:GetDescendants()) do
+        if v:IsA("ImageLabel")
+        and v.Image
+        and v.Image:lower():find("8bit") then
+
+            -- hide original 8bit logo safely
+            v.ImageTransparency = 1
+
+            -- overlay UMAR HUB logo
+            local overlay = Instance.new("ImageLabel")
+            overlay.Name = "UmarHubLogo"
+            overlay.Parent = v.Parent
+            overlay.Size = v.Size
+            overlay.Position = v.Position
+            overlay.AnchorPoint = v.AnchorPoint
+            overlay.Rotation = v.Rotation
+            overlay.ZIndex = (v.ZIndex or 1) + 10
+            overlay.BackgroundTransparency = 1
+            overlay.Image = "rbxassetid://114688178113371"
+
+            -- soft shake (safe)
+            local originalPos = overlay.Position
+            task.spawn(function()
+                while overlay and overlay.Parent do
+                    for i = 1, 20 do
+                        overlay.Position = originalPos + UDim2.new(
+                            0,
+                            math.sin(tick() * 40) * 2,
+                            0,
+                            0
+                        )
+                        task.wait(0.05)
+                    end
+                    overlay.Position = originalPos
+                    task.wait(4)
+                end
+            end)
+
+            break
         end
     end
 end)
